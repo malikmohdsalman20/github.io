@@ -40,7 +40,7 @@ layout: null
   <div class="container">
     <div class="header">
       <h1>🌐 Real-Time Apify Job Search</h1>
-      <p>Queries live LinkedIn postings using your active Apify API actor key.</p>
+      <p>Queries live LinkedIn postings using your active Apify API key.</p>
     </div>
 
     <div class="filter-panel">
@@ -75,13 +75,14 @@ layout: null
 
       jobList.innerHTML = `<div class="status-msg">⏳ Triggering Apify cloud actor... Searching LinkedIn for "${role}" in "${location}"...</div>`;
 
-      // Actor URL: Runs the popular LinkedIn Jobs Scraper Actor synchronously
+      // Synchronous API call to execute the Actor and fetch results directly
       const actorUrl = `https://api.apify.com/v2/acts/crawlworks~linkedin-jobs-scraper/run-sync-get-dataset-items?token=${APIFY_TOKEN}`;
 
+      // Payload containing required jobsToFetch parameter
       const payload = {
         title: role,
         location: location,
-        rows: 5
+        jobsToFetch: 5
       };
 
       try {
@@ -94,7 +95,7 @@ layout: null
         const jobs = await response.json();
 
         if (!Array.isArray(jobs) || jobs.length === 0) {
-          jobList.innerHTML = `<div class="status-msg">No results returned or run timed out. Try refining search keywords!</div>`;
+          jobList.innerHTML = `<div class="status-msg">No results returned or run timed out. Try refining your search terms!</div>`;
           return;
         }
 
