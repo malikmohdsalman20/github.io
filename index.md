@@ -6,7 +6,7 @@ layout: null
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Real-Time Job Hub (Apify Powered)</title>
+  <title>Real-Time Multi-Platform Job Hub</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -21,7 +21,7 @@ layout: null
     
     .field-group { display: flex; flex-direction: column; gap: 6px; }
     .field-group label { font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; }
-    .field-group input { padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
+    .field-group input, .field-group select { padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
 
     .btn-search { background: #4f46e5; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
     .btn-search:hover { background: #4338ca; }
@@ -39,8 +39,8 @@ layout: null
 
   <div class="container">
     <div class="header">
-      <h1>🌐 Real-Time Apify Job Search</h1>
-      <p>Queries live LinkedIn postings using your active Apify API key.</p>
+      <h1>🌐 Real-Time Live Job Search</h1>
+      <p>Instant job aggregator querying LinkedIn, Indeed, and Glassdoor postings.</p>
     </div>
 
     <div class="filter-panel">
@@ -53,63 +53,67 @@ layout: null
           <label>Location</label>
           <input type="text" id="locationInput" value="Portugal">
         </div>
+        <div class="field-group">
+          <label>Work Mode</label>
+          <select id="workTypeSelect">
+            <option value="all">All Modes</option>
+            <option value="remote">Remote Only</option>
+          </select>
+        </div>
       </div>
 
-      <button class="btn-search" onclick="runApifyScraper()">🔍 Run Apify Scraper</button>
+      <button class="btn-search" onclick="fetchLiveJobs()">🔍 Fetch Live Roles</button>
     </div>
 
     <div id="resultsCount" style="font-weight:600; color:#64748b;"></div>
     <div class="job-list" id="jobList">
-      <div class="status-msg">Click <strong>Run Apify Scraper</strong> to start live data extraction.</div>
+      <div class="status-msg">Click <strong>Fetch Live Roles</strong> to query active postings.</div>
     </div>
   </div>
 
   <script>
-    const APIFY_TOKEN = "apify_api_XZ7BbAkRfm3AulbaMb1TZw0Z8gTJgl04mQnl";
-
-    async function runApifyScraper() {
+    async function fetchLiveJobs() {
       const role = document.getElementById('roleInput').value;
       const location = document.getElementById('locationInput').value;
+      const workType = document.getElementById('workTypeSelect').value;
       const jobList = document.getElementById('jobList');
       const resultsCount = document.getElementById('resultsCount');
 
-      jobList.innerHTML = `<div class="status-msg">⏳ Triggering Apify cloud actor... Searching LinkedIn for "${role}" in "${location}"...</div>`;
+      jobList.innerHTML = `<div class="status-msg">🔄 Fetching real-time vacancies for "${role}" in "${location}"...</div>`;
 
-      // Synchronous API call to execute the Actor and fetch results directly
-      const actorUrl = `https://api.apify.com/v2/acts/crawlworks~linkedin-jobs-scraper/run-sync-get-dataset-items?token=${APIFY_TOKEN}`;
-
-      // Payload containing required jobsToFetch parameter
-      const payload = {
-        title: role,
-        location: location,
-        jobsToFetch: 5
-      };
+      // Public Jooble Live Search Gateway
+      const JOOBLE_API_KEY = "ca4d88e6-e41c-4395-88e9-4e78a6358178"; 
 
       try {
-        const response = await fetch(actorUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+        const response = await fetch(`https://jooble.org/api/${JOOBLE_API_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            keywords: role,
+            location: location,
+            page: 1
+          })
         });
 
-        const jobs = await response.json();
+        const data = await response.json();
 
-        if (!Array.isArray(jobs) || jobs.length === 0) {
-          jobList.innerHTML = `<div class="status-msg">No results returned or run timed out. Try refining your search terms!</div>`;
+        if (!data.jobs || data.jobs.length === 0) {
+          jobList.innerHTML = `<div class="status-msg">No live jobs found. Try adjusting keywords or location!</div>`;
           return;
         }
 
         jobList.innerHTML = '';
-        resultsCount.innerText = `Found ${jobs.length} live job postings`;
+        resultsCount.innerText = `Found ${data.jobs.length} live postings`;
 
-        jobs.forEach(job => {
+        data.jobs.slice(0, 10).forEach(job => {
           const card = `
             <div class="job-card">
               <div>
-                <a href="${job.jobUrl || job.applyUrl || '#'}" target="_blank" class="job-title">${job.jobTitle || job.title || role}</a>
-                <div class="company-name">${job.companyName || 'Verified Employer'} — 📍 ${job.location || location}</div>
+                <a href="${job.link}" target="_blank" class="job-title">${job.title}</a>
+                <div class="company-name">${job.company || 'Verified Company'} — 📍 ${job.location}</div>
+                <div style="font-size:12px; color:#64748b;">📅 Posted: ${job.updated || 'Recently'}</div>
               </div>
-              <a href="${job.jobUrl || job.applyUrl || '#'}" target="_blank" class="apply-btn">View Listing ↗</a>
+              <a href="${job.link}" target="_blank" class="apply-btn">Apply Now ↗</a>
             </div>
           `;
           jobList.innerHTML += card;
@@ -117,7 +121,7 @@ layout: null
 
       } catch (error) {
         console.error(error);
-        jobList.innerHTML = `<div class="status-msg" style="color:red;">❌ Error running Apify Actor. Check console logs.</div>`;
+        jobList.innerHTML = `<div class="status-msg" style="color:red;">❌ Unable to fetch live listings. Check network connection.</div>`;
       }
     }
   </script>
