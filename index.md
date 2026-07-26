@@ -6,28 +6,31 @@ layout: null
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Global Job Search & Outreach Suite</title>
+  <title>Global Job Hub & AI Application Suite</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background-color: #f8fafc; color: #0f172a; padding: 24px; }
     .container { max-width: 1300px; margin: 0 auto; }
-    
-    .header { margin-bottom: 20px; }
-    .header h1 { font-size: 24px; font-weight: 700; color: #0f172a; }
-    .header p { color: #64748b; font-size: 14px; }
 
-    /* Control Panel */
+    /* Top Bar: Google Auth & Stats */
+    .top-bar { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+    .user-profile { display: flex; align-items: center; gap: 12px; }
+    .user-avatar { width: 38px; height: 38px; border-radius: 50%; border: 2px solid #4f46e5; }
+    
+    .stats-container { display: flex; gap: 16px; }
+    .stat-card { background: #f1f5f9; padding: 8px 16px; border-radius: 8px; text-align: center; }
+    .stat-num { font-size: 18px; font-weight: 800; color: #4f46e5; }
+    .stat-label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; }
+
+    /* Search & Controls Panel */
     .filter-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 14px; }
     .field-group { display: flex; flex-direction: column; gap: 4px; }
     .field-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; }
     .field-group input, .field-group select, .field-group textarea { padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
-
-    /* Checkbox Multi-Select Box */
-    .checkbox-group { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 12px; max-height: 110px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
-    .checkbox-item { font-size: 12px; color: #334155; display: flex; align-items: center; gap: 6px; cursor: pointer; }
 
     .upload-box { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; }
     .upload-box:hover { border-color: #4f46e5; }
@@ -44,8 +47,10 @@ layout: null
 
     .job-list { display: flex; flex-direction: column; gap: 14px; max-height: 850px; overflow-y: auto; padding-right: 4px; }
     
+    /* Card Design */
     .job-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; cursor: pointer; transition: all 0.2s; position: relative; }
     .job-card:hover, .job-card.active { border-color: #4f46e5; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08); }
+    .job-card.applied { border-left: 5px solid #16a34a; background: #f0fdf4; }
     
     .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
     .job-card-title { font-size: 17px; font-weight: 700; color: #0f172a; }
@@ -54,22 +59,26 @@ layout: null
     .pills-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
     .pill { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 12px; background: #f1f5f9; color: #475569; }
     
+    /* Applied Toggle Switch */
+    .apply-toggle-box { display: flex; align-items: center; gap: 6px; background: #ffffff; padding: 4px 10px; border-radius: 20px; border: 1px solid #cbd5e1; font-size: 11px; font-weight: 700; }
+    .btn-toggle { padding: 3px 8px; border-radius: 12px; border: none; font-size: 10px; font-weight: 700; cursor: pointer; }
+    .btn-yes { background: #dcfce7; color: #15803d; }
+    .btn-no { background: #f1f5f9; color: #64748b; }
+
     .match-summary { background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
     .skill-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
     .skill-chip { font-size: 10px; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 10px; font-weight: 600; }
     .score-badge { font-size: 15px; font-weight: 800; color: #15803d; background: #dcfce7; padding: 4px 10px; border-radius: 16px; text-align: center; }
 
-    /* Right Intelligence & Outreach Panel */
+    /* Right Detail View */
     .detail-view { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; position: sticky; top: 24px; }
-    .desc-box { font-size: 13px; line-height: 1.6; color: #334155; max-height: 320px; overflow-y: auto; margin-top: 12px; white-space: pre-wrap; background: #f8fafc; padding: 12px; border-radius: 8px; }
+    .desc-box { font-size: 13px; line-height: 1.6; color: #334155; max-height: 380px; overflow-y: auto; margin-top: 12px; white-space: pre-wrap; background: #f8fafc; padding: 12px; border-radius: 8px; font-family: inherit; }
     
-    /* Email Draft Box */
-    .email-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin-top: 16px; }
-    .email-title { font-size: 14px; font-weight: 700; color: #1e40af; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-    .email-content { font-size: 12px; color: #1e3a8a; line-height: 1.5; white-space: pre-wrap; font-family: monospace; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #dbeafe; max-height: 180px; overflow-y: auto; }
+    .btn-apply-main { display: block; width: 100%; text-align: center; background: #0a66c2; color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 14px; margin-top: 12px; }
+    .btn-apply-main:hover { background: #004182; }
 
-    .btn-apply { display: inline-block; text-align: center; background: #0f172a; color: white; text-decoration: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; margin-top: 12px; }
-    .btn-email { display: inline-block; text-align: center; background: #2563eb; color: white; text-decoration: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; margin-top: 12px; cursor: pointer; border: none; }
+    .email-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 14px; margin-top: 16px; }
+    .email-content { font-size: 12px; color: #1e3a8a; line-height: 1.5; white-space: pre-wrap; font-family: monospace; background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #dbeafe; max-height: 140px; overflow-y: auto; }
 
     .status-msg { text-align: center; padding: 40px; color: #64748b; font-size: 14px; }
   </style>
@@ -77,47 +86,70 @@ layout: null
 <body>
 
   <div class="container">
-    <div class="header">
-      <h1>🌐 Global Job Hub & HR Outreach Suite</h1>
-      <p>Multi-title search worldwide with real-time PDF CV parsing and automated HR email drafting.</p>
+    
+    <!-- Top Bar: Title, Stats & Google Login -->
+    <div class="top-bar">
+      <div>
+        <h1 style="font-size:20px; font-weight:700;">🌐 Global Job Search & Application Tracker</h1>
+        <p style="font-size:12px; color:#64748b;">Search worldwide job portals, match CV skills, and track applications.</p>
+      </div>
+
+      <div class="stats-container">
+        <div class="stat-card">
+          <div class="stat-num" id="statApplied">0</div>
+          <div class="stat-label">Jobs Applied</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="statTotal">0</div>
+          <div class="stat-label">Total Found</div>
+        </div>
+      </div>
+
+      <div id="googleAuthSection">
+        <div id="g_id_onload"
+             data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse">
+        </div>
+        <div class="g_id_signin" data-type="standard"></div>
+      </div>
+
+      <div id="userInfo" class="user-profile" style="display:none;">
+        <img id="userImg" class="user-avatar" src="" alt="Profile">
+        <div>
+          <div id="userName" style="font-size:13px; font-weight:700;"></div>
+          <div id="userEmail" style="font-size:11px; color:#64748b;"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- Filters -->
+    <!-- Search Controls (Blank Inputs) -->
     <div class="filter-panel">
       <div class="grid-4">
-        <!-- Multi-Select Titles -->
         <div class="field-group">
-          <label>Job Titles (Select Multiple)</label>
-          <div class="checkbox-group">
-            <label class="checkbox-item"><input type="checkbox" class="title-chk" value="Operations Manager" checked> Operations Manager</label>
-            <label class="checkbox-item"><input type="checkbox" class="title-chk" value="Project Manager" checked> Project Manager</label>
-            <label class="checkbox-item"><input type="checkbox" class="title-chk" value="Supply Chain Manager" checked> Supply Chain Manager</label>
-            <label class="checkbox-item"><input type="checkbox" class="title-chk" value="Production Manager" checked> Production Manager</label>
-            <label class="checkbox-item"><input type="checkbox" class="title-chk" value="Logistics Manager" checked> Logistics Manager</label>
-          </div>
+          <label>Job Title Search</label>
+          <input type="text" id="roleInput" value="" placeholder="e.g. Operations Manager or Project Manager">
         </div>
 
-        <!-- Global Searchable Location -->
         <div class="field-group">
-          <label>Location (Worldwide Search)</label>
-          <input type="text" id="locInput" value="Portugal" placeholder="e.g. Portugal, Lisbon, London, USA, Worldwide">
+          <label>Location</label>
+          <input type="text" id="locInput" value="" placeholder="e.g. Portugal or Worldwide">
         </div>
 
-        <!-- Sort Jobs -->
         <div class="field-group">
-          <label>Sort Jobs By</label>
-          <select id="sortFilter">
-            <option value="relevance" selected>Relevance (Best Match First)</option>
-            <option value="recent">Recent (Newest Postings First)</option>
+          <label>Date Posted</label>
+          <select id="dateFilter">
+            <option value="pastWeek" selected>Past 7 Days</option>
+            <option value="past24h">Past 24 Hours</option>
+            <option value="pastMonth">Past 30 Days</option>
+            <option value="anytime">Anytime</option>
           </select>
         </div>
 
-        <!-- Applicant Limit -->
         <div class="field-group">
-          <label>Applicant Competition</label>
+          <label>Applicant Limit</label>
           <select id="applicantFilter">
             <option value="all">Any Applicant Count</option>
-            <option value="10" selected>Under 10 Applicants</option>
+            <option value="10">Under 10 Applicants</option>
             <option value="25">Under 25 Applicants</option>
             <option value="50">Under 50 Applicants</option>
           </select>
@@ -126,26 +158,26 @@ layout: null
 
       <!-- PDF CV Upload -->
       <div class="field-group">
-        <label>📄 Upload PDF / Document CV (Extracts & Validates Skills)</label>
+        <label>📄 Upload PDF / Document CV (Dynamic Skill Matching)</label>
         <div class="upload-box" onclick="document.getElementById('cvFileInput').click()">
-          <span class="upload-label" id="uploadStatus">📁 Click to Upload PDF CV or paste skills below</span>
+          <span class="upload-label" id="uploadStatus">📁 Click to Upload PDF CV or paste text below</span>
           <input type="file" id="cvFileInput" accept=".pdf,.txt,.doc,.docx" onchange="handlePDFUpload(event)">
         </div>
-        <textarea id="cvTextInput" rows="2" style="margin-top:8px;" placeholder="Operations Management, Project Planning, Risk Management, Supply Chain Optimization, Logistics, Budgeting, Leadership..."></textarea>
+        <textarea id="cvTextInput" rows="2" style="margin-top:8px;" placeholder="Paste CV skills or text here..."></textarea>
       </div>
 
-      <button id="searchBtn" class="btn-search" onclick="runGlobalSearch()">🔍 Fetch Multi-Title Jobs & Match CV</button>
+      <button id="searchBtn" class="btn-search" onclick="runLiveSearch()">🔍 Scrape Jobs & Perform CV Skill Match</button>
     </div>
 
-    <!-- Main Grid -->
+    <!-- Results Split Grid -->
     <div class="main-layout">
       <div class="job-list" id="jobList">
-        <div class="status-msg">Select job titles and click <strong>Fetch Multi-Title Jobs</strong>.</div>
+        <div class="status-msg">Type search criteria above and click <strong>Scrape Jobs</strong>.</div>
       </div>
 
       <div class="detail-view" id="detailView">
         <div style="text-align:center; padding: 60px 0; color: #94a3b8;">
-          👈 Select a job listing to review full descriptions and generate automated HR email drafts.
+          👈 Select a job from the list to view details and apply directly.
         </div>
       </div>
     </div>
@@ -156,13 +188,51 @@ layout: null
     const ACTOR_ID = "DYFzkdbYmMF6x7QMG";
 
     let currentJobs = [];
+    let appliedJobs = new Set();
 
-    // Parse PDF CV using PDF.js
+    // Google Sign-In Callback
+    function handleCredentialResponse(response) {
+      const payload = parseJwt(response.credential);
+      document.getElementById('googleAuthSection').style.display = 'none';
+      document.getElementById('userInfo').style.display = 'flex';
+      document.getElementById('userName').innerText = payload.name;
+      document.getElementById('userEmail').innerText = payload.email;
+      document.getElementById('userImg').src = payload.picture;
+    }
+
+    function parseJwt(token) {
+      var base64Url = token.split('.')[1];
+      var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    }
+
+    // Toggle Applied Status
+    function toggleApplied(index, status) {
+      const job = currentJobs[index];
+      const jobKey = job.jobUrl || job.title;
+
+      if (status === 'YES') appliedJobs.add(jobKey);
+      else appliedJobs.delete(jobKey);
+
+      updateStats();
+      renderJobList();
+      renderDetailView(index);
+    }
+
+    function updateStats() {
+      document.getElementById('statApplied').innerText = appliedJobs.size;
+      document.getElementById('statTotal').innerText = currentJobs.length;
+    }
+
+    // PDF Parser
     async function handlePDFUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
 
-      document.getElementById('uploadStatus').innerText = `📄 Uploaded & Parsing: ${file.name}`;
+      document.getElementById('uploadStatus').innerText = `📄 Uploading: ${file.name}`;
 
       if (file.type === "application/pdf") {
         const fileReader = new FileReader();
@@ -178,7 +248,7 @@ layout: null
             fullText += textContent.items.map(item => item.str).join(" ") + " ";
           }
           document.getElementById('cvTextInput').value = fullText;
-          document.getElementById('uploadStatus').innerText = `✅ PDF Parsed Successfully: ${file.name}`;
+          document.getElementById('uploadStatus').innerText = `✅ PDF Loaded: ${file.name}`;
         };
         fileReader.readAsArrayBuffer(file);
       } else {
@@ -189,29 +259,53 @@ layout: null
       }
     }
 
-    async function runGlobalSearch() {
-      const selectedTitles = Array.from(document.querySelectorAll('.title-chk:checked')).map(cb => cb.value);
-      const location = document.getElementById('locInput').value;
-      const sortBy = document.getElementById('sortFilter').value;
+    // Dynamic Skill Matcher
+    function extractCVWords(cvText) {
+      if (!cvText || cvText.trim().length === 0) return [];
+      const stopWords = new Set(["with", "from", "that", "this", "have", "been", "were", "their", "about", "which", "will", "would", "there", "management", "experience"]);
+      const words = cvText.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 3 && !stopWords.has(w));
+      return Array.from(new Set(words));
+    }
+
+    function calculateDynamicMatch(cvWords, jobDesc) {
+      if (!cvWords || cvWords.length === 0 || !jobDesc) return { score: 0, matched: [] };
+      const descLower = jobDesc.toLowerCase();
+      const matched = [];
+
+      cvWords.forEach(word => {
+        if (descLower.includes(word)) {
+          matched.push(word.charAt(0).toUpperCase() + word.slice(1));
+        }
+      });
+
+      const matchRatio = matched.length / Math.min(cvWords.length, 25);
+      const score = Math.min(Math.round(matchRatio * 100), 98);
+      return { score, matched };
+    }
+
+    async function runLiveSearch() {
+      const role = document.getElementById('roleInput').value.trim();
+      const location = document.getElementById('locInput').value.trim();
+      const datePosted = document.getElementById('dateFilter').value;
       const maxApps = document.getElementById('applicantFilter').value;
       const btn = document.getElementById('searchBtn');
       const listContainer = document.getElementById('jobList');
 
-      if (selectedTitles.length === 0) {
-        alert("Please select at least one job title!");
+      if (!role) {
+        alert("Please enter a job title to search!");
         return;
       }
 
       btn.disabled = true;
-      const queryRole = selectedTitles.join(" OR ");
-      listContainer.innerHTML = `<div class="status-msg">🚀 Searching live portals for (${selectedTitles.length} titles) in "${location}"...</div>`;
+      listContainer.innerHTML = `<div class="status-msg">🚀 Scraping live jobs for "${role}"...</div>`;
 
       try {
         const payload = {
-          searchTerm: queryRole,
-          location: location,
+          searchTerm: role,
+          location: location || undefined,
+          datePosted: datePosted !== 'anytime' ? datePosted : undefined,
           sites: ["linkedin", "indeed", "glassdoor"],
-          maxResults: 60
+          maxResults: 50
         };
 
         const startRes = await fetch(`https://api.apify.com/v2/acts/${ACTOR_ID}/runs?token=${API_TOKEN}`, {
@@ -227,7 +321,7 @@ layout: null
         let attempts = 0;
         while (!isFinished && attempts < 40) {
           attempts++;
-          listContainer.innerHTML = `<div class="status-msg">⏳ Fetching live vacancies worldwide... (${attempts * 3}s)</div>`;
+          listContainer.innerHTML = `<div class="status-msg">⏳ Fetching live vacancies from portals... (${attempts * 3}s)</div>`;
           await new Promise(r => setTimeout(r, 3000));
 
           const checkRes = await fetch(`https://api.apify.com/v2/actor-runs/${runId}?token=${API_TOKEN}`);
@@ -238,7 +332,6 @@ layout: null
         const datasetRes = await fetch(`https://api.apify.com/v2/datasets/${datasetId}/items?token=${API_TOKEN}`);
         currentJobs = await datasetRes.json();
 
-        // Filter Low Applicants if selected
         if (maxApps !== 'all') {
           const cap = parseInt(maxApps);
           currentJobs = currentJobs.filter(j => {
@@ -247,17 +340,7 @@ layout: null
           });
         }
 
-        // Sort Results
-        if (sortBy === 'recent') {
-          currentJobs.reverse();
-        }
-
-        if (!currentJobs || currentJobs.length === 0) {
-          listContainer.innerHTML = `<div class="status-msg">No live postings met your exact constraints. Try expanding applicant filters!</div>`;
-          btn.disabled = false;
-          return;
-        }
-
+        updateStats();
         renderJobList();
         renderDetailView(0);
 
@@ -271,36 +354,54 @@ layout: null
     function renderJobList() {
       const listContainer = document.getElementById('jobList');
       const cvText = document.getElementById('cvTextInput').value.trim();
+      const cvWords = extractCVWords(cvText);
 
-      listContainer.innerHTML = `<div style="font-size:13px; font-weight:700; color:#475569;">Found ${currentJobs.length} live positions</div>`;
+      listContainer.innerHTML = `<div style="font-size:13px; font-weight:700; color:#475569;">Found ${currentJobs.length} live vacancies</div>`;
 
       currentJobs.forEach((job, index) => {
-        const fullText = job.description || job.snippet || job.title;
-        const analysis = analyzeSkills(cvText, fullText);
-        
+        const jobKey = job.jobUrl || job.title;
+        const isApplied = appliedJobs.has(jobKey);
+        const fullDesc = job.description || job.snippet || job.title;
+        const analysis = calculateDynamicMatch(cvWords, fullDesc);
+        const targetUrl = job.jobUrl || job.url || job.link || '#';
+
         listContainer.innerHTML += `
-          <div class="job-card" id="card-${index}" onclick="renderDetailView(${index})">
+          <div class="job-card ${isApplied ? 'applied' : ''}" id="card-${index}" onclick="renderDetailView(${index})">
             <div class="card-top">
               <div>
                 <div class="job-card-title">${job.title || job.jobTitle}</div>
-                <div class="job-card-company">${job.company || 'Verified Employer'} • <span style="color:#6366f1;">${job.site || 'LinkedIn'}</span></div>
+                <div class="job-card-company">${job.company || 'Employer'} — 📍 ${job.location || 'Location'}</div>
+              </div>
+
+              <div class="apply-toggle-box" onclick="event.stopPropagation();">
+                <span>Applied?</span>
+                <button class="btn-toggle ${isApplied ? 'btn-yes' : 'btn-no'}" onclick="toggleApplied(${index}, 'YES')">YES</button>
+                <button class="btn-toggle ${!isApplied ? 'btn-yes' : 'btn-no'}" onclick="toggleApplied(${index}, 'NO')">NO</button>
               </div>
             </div>
 
             <div class="pills-container">
-              <span class="pill">📍 ${job.location || 'Portugal'}</span>
-              <span class="pill">👥 ${job.applicantCount || job.applicants || '< 10'} applicants</span>
-              <span class="pill">🏢 ${job.workType || 'Hybrid'}</span>
+              <span class="pill">Portal: ${job.site || 'LinkedIn'}</span>
+              <span class="pill">💼 ${job.employmentType || 'Full-time'}</span>
+              <span class="pill">👥 ${job.applicantCount || job.applicants || 'Active'} applicants</span>
             </div>
 
             <div class="match-summary">
               <div>
-                <span style="font-size:11px; font-weight:600; color:#166534;">✓ Strong CV Skill Overlap</span>
+                <span style="font-size:11px; font-weight:600; color:#166534;">Matched Skills</span>
                 <div class="skill-chips">
-                  ${analysis.matchedSkills.slice(0, 4).map(s => `<span class="skill-chip">${s}</span>`).join('')}
+                  ${analysis.matched.length > 0 
+                    ? analysis.matched.slice(0, 4).map(s => `<span class="skill-chip">${s}</span>`).join('')
+                    : '<span style="font-size:10px; color:#94a3b8;">Upload CV above to calculate match</span>'}
                 </div>
               </div>
-              <div class="score-badge">${analysis.score}%</div>
+
+              <div style="display:flex; align-items:center; gap:8px;">
+                <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" style="font-size:11px; font-weight:700; color:#0a66c2; text-decoration:none;" onclick="event.stopPropagation();">
+                  Apply on ${job.site || 'LinkedIn'} ↗
+                </a>
+                <div class="score-badge">${analysis.score}%</div>
+              </div>
             </div>
           </div>
         `;
@@ -313,74 +414,55 @@ layout: null
       if (selectedCard) selectedCard.classList.add('active');
 
       const job = currentJobs[index];
+      if (!job) return;
+
+      const jobKey = job.jobUrl || job.title;
+      const isApplied = appliedJobs.has(jobKey);
       const cvText = document.getElementById('cvTextInput').value.trim();
+      const cvWords = extractCVWords(cvText);
+
+      const fullNativeDesc = job.description || job.snippet || "Full description text available on original portal listing.";
+      const analysis = calculateDynamicMatch(cvWords, fullNativeDesc);
+      const targetUrl = job.jobUrl || job.url || job.link || '#';
+      const companyClean = (job.company || 'Company').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+
+      const emailSubject = encodeURIComponent(`Application for ${job.title || 'Role'} - Mohammad Salman`);
+      const emailBody = `Dear Hiring Team at ${job.company || 'the Company'},\n\nI am writing to express my strong interest in the ${job.title || 'open role'} position. With over 12 years of experience leading operations, project management, and supply chain execution across Portugal and internationally, I bring proven expertise in driving operational efficiency.\n\nKey Matched Skills:\n- ${analysis.matched.slice(0, 4).join('\n- ')}\n\nBest regards,\nMohammad Salman\nmalikmohdsalman20@gmail.com | +351 926 363 916`;
+
       const detailContainer = document.getElementById('detailView');
-
-      const fullDesc = job.description || job.snippet || "Full job description available on original portal listing.";
-      const analysis = analyzeSkills(cvText, fullDesc);
-      
-      const companyClean = (job.company || 'Hiring Manager').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-      const hrEmail = `careers@${companyClean}.com`;
-
-      const emailSubject = encodeURIComponent(`Application for ${job.title || 'Operations Role'} - Mohammad Salman`);
-      const emailBodyText = `Dear Hiring Team at ${job.company || 'the Company'},\n\nI am reaching out to express my strong interest in the ${job.title || 'open role'} position. With a strong background in operational resilience, supply chain optimization, and project execution, my profile aligns closely with your requirements.\n\nKey Matched Competencies:\n- ${analysis.matchedSkills.slice(0, 4).join('\n- ')}\n\nI would welcome the opportunity to discuss how my background can support your operational goals.\n\nBest regards,\nMohammad Salman`;
-      
-      const mailtoUrl = `mailto:${hrEmail}?subject=${emailSubject}&body=${encodeURIComponent(emailBodyText)}`;
-
       detailContainer.innerHTML = `
         <div style="font-size:12px; font-weight:600; color:#6366f1;">Sourced from ${job.site || 'LinkedIn'}</div>
         <div style="font-size:20px; font-weight:700; color:#0f172a; margin-top:2px;">${job.title || job.jobTitle}</div>
-        <div style="font-size:14px; font-weight:500; color:#475569; margin-bottom:12px;">${job.company || 'Employer'} — 📍 ${job.location || 'Portugal'}</div>
+        <div style="font-size:14px; font-weight:500; color:#475569; margin-bottom:12px;">${job.company || 'Employer'} — 📍 ${job.location || 'Location'}</div>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:10px; border-radius:8px; margin-bottom:12px;">
-          <div>
-            <div style="font-size:16px; font-weight:800; color:#0f172a;">${analysis.score}% Match Score</div>
-            <div style="font-size:11px; color:#166534; font-weight:600;">${analysis.matchedSkills.length} CV skills matched</div>
+        <!-- Direct Portal Application Link Button -->
+        <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="btn-apply-main">
+          🚀 Apply Directly on ${job.site || 'LinkedIn'} ↗
+        </a>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; background:${isApplied ? '#dcfce7' : '#f8fafc'}; padding:10px; border-radius:8px; margin-top:12px;">
+          <div style="font-size:13px; font-weight:700; color:${isApplied ? '#166534' : '#0f172a'};">
+            ${isApplied ? '✅ Status: Marked as Applied' : '⏳ Status: Not Applied Yet'}
           </div>
-          <div class="score-badge">${analysis.score}%</div>
+          <button style="padding:5px 10px; font-size:11px; font-weight:700; border-radius:6px; border:none; cursor:pointer; background:${isApplied ? '#166534' : '#0f172a'}; color:white;"
+                  onclick="toggleApplied(${index}, '${isApplied ? 'NO' : 'YES'}')">
+            Mark as ${isApplied ? 'Not Applied' : 'Applied'}
+          </button>
         </div>
 
-        <h3 style="font-size:13px; font-weight:700; color:#0f172a;">Job Description</h3>
-        <div class="desc-box">${fullDesc}</div>
+        <h3 style="font-size:13px; font-weight:700; color:#0f172a; margin-top:16px;">Job Description (Original Language)</h3>
+        <div class="desc-box">${fullNativeDesc}</div>
 
-        <!-- Automated HR Email Outreach Generator -->
+        <!-- Auto Email Draft Box -->
         <div class="email-box">
-          <div class="email-title">
-            <span>✉️ Generated HR Cover Letter Email</span>
-            <span style="font-size:11px; color:#3b82f6;">Target: ${hrEmail}</span>
-          </div>
-          <div class="email-content">${emailBodyText}</div>
-          
-          <div style="display:flex; gap:8px;">
-            <a href="${mailtoUrl}" class="btn-email">📧 Open in Email Client (Gmail/Mail)</a>
-            <a href="${job.jobUrl || job.url || job.link || '#'}" target="_blank" class="btn-apply">View Original Listing ↗</a>
-          </div>
+          <div style="font-size:13px; font-weight:700; color:#1e40af; margin-bottom:6px;">✉️ Generated HR Cover Letter Draft</div>
+          <div class="email-content">${emailBody}</div>
+          <a href="mailto:careers@${companyClean}.com?subject=${emailSubject}&body=${encodeURIComponent(emailBody)}" 
+             style="display:inline-block; margin-top:10px; background:#2563eb; color:white; text-decoration:none; padding:8px 14px; border-radius:6px; font-size:12px; font-weight:600;">
+            📧 Launch Email Client
+          </a>
         </div>
       `;
-    }
-
-    function analyzeSkills(cvText, description) {
-      const defaultSkills = ["Operations Management", "Project Planning", "Supply Chain", "Logistics", "Risk Management", "Process Optimization"];
-      if (!cvText) return { score: 95, matchedSkills: defaultSkills };
-
-      const keyTerms = [
-        "Operations", "Project Management", "Supply Chain", "Logistics", 
-        "Production", "Planning", "Risk Management", "Budgeting", "KPI",
-        "Stakeholder", "Reporting", "Process Improvement", "Compliance"
-      ];
-
-      const matchedSkills = [];
-      const lowerDesc = description.toLowerCase();
-      const lowerCV = cvText.toLowerCase();
-
-      keyTerms.forEach(term => {
-        if (lowerCV.includes(term.toLowerCase()) || lowerDesc.includes(term.toLowerCase())) {
-          matchedSkills.push(term);
-        }
-      });
-
-      const score = Math.min(Math.max(matchedSkills.length * 12, 55), 98);
-      return { score, matchedSkills: matchedSkills.length > 0 ? matchedSkills : defaultSkills };
     }
   </script>
 </body>
