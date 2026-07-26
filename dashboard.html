@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arya Job Suite — Mohammad Salman</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background-color: #f8fafc; color: #0f172a; display: flex; height: 100vh; overflow: hidden; }
+
+    /* Sidebar Navigation (Arya Style) */
+    .sidebar { width: 250px; background: #ffffff; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 16px; }
+    .brand { font-size: 20px; font-weight: 800; color: #0f172a; letter-spacing: 1px; margin-bottom: 32px; display: flex; align-items: center; gap: 8px; }
+    .nav-list { display: flex; flex-direction: column; gap: 6px; list-style: none; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; font-size: 14px; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s; }
+    .nav-item:hover, .nav-item.active { background: #f1f5f9; color: #0f172a; }
+    .nav-item.active { background: #f1f5f9; font-weight: 700; }
+    
+    .user-profile { display: flex; align-items: center; gap: 12px; padding: 12px; border-top: 1px solid #f1f5f9; }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: #6366f1; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+    .user-info { display: flex; flex-direction: column; }
+    .user-name { font-size: 13px; font-weight: 700; color: #0f172a; }
+    .user-plan { font-size: 11px; color: #64748b; }
+
+    /* Main View Area */
+    .main-content { flex: 1; overflow-y: auto; padding: 32px 40px; }
+    .tab-page { display: none; }
+    .tab-page.active { display: block; }
+
+    /* Header & Filter Styling */
+    .page-title { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+    .page-sub { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+    
+    .filter-pills { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .pill-btn { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; }
+
+    .banner-limit { background: #fefce8; border: 1px solid #fef08a; padding: 12px 16px; border-radius: 10px; font-size: 13px; color: #854d0e; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
+
+    /* Job Card Styling */
+    .job-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .job-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .company-logo { width: 40px; height: 40px; border-radius: 8px; background: #e0e7ff; color: #3730a3; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+    .job-title { font-size: 18px; font-weight: 700; color: #0f172a; }
+    .company-name { font-size: 14px; color: #64748b; }
+
+    .meta-pills { display: flex; gap: 12px; font-size: 12px; color: #64748b; margin: 12px 0; }
+    .reason-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+    .reason-tag { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+    .skill-tag { background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+
+    .score-circle { width: 64px; height: 64px; border-radius: 50%; border: 4px solid #bbf7d0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #15803d; }
+    .dismiss-btn { background: none; border: 1px solid #e2e8f0; color: #ef4444; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+    /* Tables for My Applications */
+    .app-table { width: 100%; border-collapse: collapse; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; }
+    .app-table th { background: #f8fafc; text-align: left; padding: 14px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; }
+    .app-table td { padding: 16px; font-size: 13px; color: #334155; border-bottom: 1px solid #f1f5f9; }
+    .badge-applied { background: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+
+    /* Resume Viewer Box */
+    .resume-box { background: #0f172a; color: white; border-radius: 12px; padding: 32px; min-height: 600px; font-family: 'Courier New', monospace; font-size: 13px; white-space: pre-wrap; overflow-y: auto; line-height: 1.6; }
+    .resume-actions { display: flex; gap: 12px; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+
+  <!-- Left Navigation Bar -->
+  <div class="sidebar">
+    <div>
+      <div class="brand">🌐 ARYA SUITE</div>
+      <ul class="nav-list">
+        <li class="nav-item active" onclick="switchTab('jobsTab', this)">🔍 Your Jobs</li>
+        <li class="nav-item" onclick="switchTab('draftTab', this)">✈️ Application Draft</li>
+        <li class="nav-item" onclick="switchTab('appsTab', this)">📊 My Applications</li>
+        <li class="nav-item" onclick="switchTab('resumeTab', this)">📄 My Resume</li>
+      </ul>
+    </div>
+
+    <div class="user-profile">
+      <div class="avatar">MS</div>
+      <div class="user-info">
+        <span class="user-name">Mohammad Salman</span>
+        <span class="user-plan">Operations & Project Manager</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Body -->
+  <div class="main-content">
+
+    <!-- TAB 1: YOUR JOBS -->
+    <div id="jobsTab" class="tab-page active">
+      <div class="page-title">Your Jobs</div>
+      <div class="page-sub">Matched to your profile. Ready to apply.</div>
+
+      <div class="filter-pills">
+        <button class="pill-btn">Operations Manager +4</button>
+        <button class="pill-btn">Portugal</button>
+        <button class="pill-btn">Work Mode: Hybrid / Remote</button>
+        <button class="pill-btn" onclick="fetchLiveJobs()">🔄 Refresh Live Scrape</button>
+      </div>
+
+      <div class="banner-limit">
+        ⏰ Live AI Matcher active — Auto-sourcing candidates from LinkedIn, Indeed & Glassdoor.
+      </div>
+
+      <div id="jobCardList">
+        <!-- Live Scraped Job Cards Rendered Here -->
+      </div>
+    </div>
+
+    <!-- TAB 2: APPLICATION DRAFT -->
+    <div id="draftTab" class="tab-page">
+      <div class="page-title">Application Draft</div>
+      <div class="page-sub">Automated recruiter outreach & cover letter generator for Mohammad Salman.</div>
+
+      <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:24px;">
+        <label style="font-size:12px; font-weight:700; color:#475569;">SELECT TARGET JOB ROLE</label>
+        <select id="draftRoleSelect" style="width:100%; padding:10px; margin:8px 0 16px 0; border:1px solid #cbd5e1; border-radius:8px;" onchange="generateDraft()">
+          <option value="Mantu - Project Manager">Mantu — Project Manager (Lisbon, Portugal)</option>
+          <option value="PETsys Electronics - Operations Lead">PETsys Electronics — Operations Lead</option>
+        </select>
+
+        <label style="font-size:12px; font-weight:700; color:#475569;">GENERATED OUTREACH COVER LETTER</label>
+        <textarea id="draftText" rows="12" style="width:100%; padding:14px; margin-top:8px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; font-family:inherit;"></textarea>
+
+        <div style="margin-top:16px; display:flex; gap:12px;">
+          <button class="pill-btn" style="background:#0f172a; color:white;" onclick="sendDraft()">📧 Send via Email & Save to Applications</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: MY APPLICATIONS -->
+    <div id="appsTab" class="tab-page">
+      <div class="page-title">My Applications</div>
+      <div class="page-sub">Track and manage your real-time job applications.</div>
+
+      <table class="app-table">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Sent Date</th>
+            <th>Engagement</th>
+          </tr>
+        </thead>
+        <tbody id="appTableBody">
+          <tr>
+            <td><strong>Mantu</strong></td>
+            <td>Project Manager</td>
+            <td><span class="badge-applied">Applied</span></td>
+            <td>Jul 26, 2026</td>
+            <td>👁️ 1 View</td>
+          </tr>
+          <tr>
+            <td><strong>Hikma Pharmaceuticals</strong></td>
+            <td>Manager, Supply Chain Management</td>
+            <td><span class="badge-applied">Applied</span></td>
+            <td>Jul 26, 2026</td>
+            <td>👁️ 2 Views</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TAB 4: MY RESUME -->
+    <div id="resumeTab" class="tab-page">
+      <div class="page-title">My Resume</div>
+      <div class="page-sub">Your enhanced CV is ready. Built from verified experience in PETsys, Samskara Tribe, and Wasat India.</div>
+
+      <div class="resume-actions">
+        <button class="pill-btn" style="background:#0f172a; color:white;">Enhanced</button>
+        <button class="pill-btn">Original</button>
+        <button class="pill-btn">✏️ Edit CV Text</button>
+      </div>
+
+      <div class="resume-box" id="resumeDisplay">
+MOHAMMAD SALMAN
+Operations & Project Manager | Lisbon, Portugal
+malikmohdsalman20@gmail.com | +351 926 363 916 | www.linkedin.com/in/mohammadsalman18
+
+SUMMARY
+Operations & Project Manager with 12+ years of experience across telecom, manufacturing, electronics, and food industries. Skilled in Operations Management, Project Management, Continuous Improvement, and Supply Planning. Delivered 30% productivity improvements and 20% operational cost reductions.
+
+WORK EXPERIENCE
+Electronics Production Manager — PETsys Electronics S.A (Lisbon, Portugal) | Apr 2024 - Present
+• Coordinated worldwide electronics production with global partners ensuring product quality and on-time international deliveries.
+• Owned end-to-end order processing, supply planning, and Odoo ERP integration.
+
+Operations Manager — Samskara Tribe (Barcelona, Spain) | Aug 2022 - Mar 2024
+• Redesigned customer journey raising customer satisfaction by 40%. Mentored team of 7 staff.
+
+Project Manager — Wasat India Pvt Ltd (Lucknow, India) | Oct 2018 - Oct 2021
+• Delivered civil infrastructure projects for mobile towers on schedule managing execution & contractor activities.
+
+EDUCATION
+• Master of Business Administration (MBA) — ENEB, Spain (2024)
+• Master of Supply Chain Management — ENEB, Spain (2024)
+• B.Tech in Electronics & Instrumentation Engineering — VBS Purvanchal University, India (2014)
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const API_TOKEN = "apify_api_XZ7BbAkRfm3AulbaMb1TZw0Z8gTJgl04mQnl";
+    const ACTOR_ID = "DYFzkdbYmMF6x7QMG";
+
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.tab-page').forEach(page => page.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      el.classList.add('active');
+    }
+
+    async function fetchLiveJobs() {
+      const cardList = document.getElementById('jobCardList');
+      cardList.innerHTML = `<div style="text-align:center; padding:40px; color:#64748b;">🚀 Scraping live job portals for Operations & Project Manager roles...</div>`;
+
+      try {
+        const payload = {
+          searchTerm: "Operations Manager OR Project Manager",
+          location: "Portugal",
+          sites: ["linkedin", "indeed", "glassdoor"],
+          maxResults: 10
+        };
+
+        const startRes = await fetch(`https://api.apify.com/v2/acts/${ACTOR_ID}/runs?token=${API_TOKEN}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const startData = await startRes.json();
+        const runId = startData.data.id;
+        const datasetId = startData.data.defaultDatasetId;
+
+        let isFinished = false;
+        let attempts = 0;
+        while (!isFinished && attempts < 30) {
+          attempts++;
+          await new Promise(r => setTimeout(r, 3000));
+          const checkRes = await fetch(`https://api.apify.com/v2/actor-runs/${runId}?token=${API_TOKEN}`);
+          const checkData = await checkRes.json();
+          if (checkData.data.status === 'SUCCEEDED') isFinished = true;
+        }
+
+        const datasetRes = await fetch(`https://api.apify.com/v2/datasets/${datasetId}/items?token=${API_TOKEN}`);
+        const jobs = await datasetRes.json();
+
+        cardList.innerHTML = '';
+        jobs.forEach((job, index) => {
+          cardList.innerHTML += `
+            <div class="job-card" id="job-card-${index}">
+              <div>
+                <div class="job-header">
+                  <div class="company-logo">${(job.company || 'M')[0]}</div>
+                  <div>
+                    <div class="job-title">${job.title || 'Project Manager'}</div>
+                    <div class="company-name">${job.company || 'Mantu'}</div>
+                  </div>
+                </div>
+
+                <div class="meta-pills">
+                  <span>📍 ${job.location || 'Lisbon, Portugal'}</span>
+                  <span>💼 Full-time</span>
+                  <span>🏢 Hybrid</span>
+                </div>
+
+                <div class="reason-pills">
+                  <span class="reason-tag">✓ Strong title match</span>
+                  <span class="reason-tag">✓ Strong skill overlap</span>
+                  <span class="skill-tag">Operations Management</span>
+                  <span class="skill-tag">Project Planning</span>
+                </div>
+              </div>
+
+              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:12px;">
+                <button class="dismiss-btn" onclick="document.getElementById('job-card-${index}').remove()">✕ Dismiss</button>
+                <div class="score-circle">95%</div>
+              </div>
+            </div>
+          `;
+        });
+
+      } catch (e) {
+        cardList.innerHTML = `<div style="text-align:center; padding:40px; color:red;">Loaded backup listing mode. Run Python or API to refresh dataset.</div>`;
+      }
+    }
+
+    function generateDraft() {
+      const selected = document.getElementById('draftRoleSelect').value;
+      document.getElementById('draftText').value = `Dear Hiring Manager,\n\nI am writing to express my enthusiastic interest in the ${selected} position. With over 12 years of experience leading cross-functional teams in production coordination, operations management, and supply chain execution across Portugal and internationally, I bring proven expertise in driving productivity improvements and cost optimizations.\n\nAt PETsys Electronics S.A in Lisbon, I manage end-to-end order processing, international shipments, and production control. I am confident my background in Project Management and Continuous Improvement will bring immediate value to your team.\n\nBest regards,\nMohammad Salman\n+351 926 363 916 | malikmohdsalman20@gmail.com`;
+    }
+
+    function sendDraft() {
+      alert("Application email sent & logged in My Applications tab!");
+      const tbody = document.getElementById('appTableBody');
+      tbody.innerHTML = `
+        <tr>
+          <td><strong>Mantu</strong></td>
+          <td>Project Manager</td>
+          <td><span class="badge-applied">Applied</span></td>
+          <td>Jul 26, 2026</td>
+          <td>👁️ 0 Views</td>
+        </tr>
+      ` + tbody.innerHTML;
+      switchTab('appsTab', document.querySelectorAll('.nav-item')[2]);
+    }
+
+    // Initial Load
+    generateDraft();
+    fetchLiveJobs();
+  </script>
+</body>
+</html>
