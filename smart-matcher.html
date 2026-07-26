@@ -1,51 +1,64 @@
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynamic AI Skill & CV Matcher</title>
+  <title>Dynamic Job Aggregator & Real CV Matcher</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background-color: #f8fafc; color: #0f172a; padding: 24px; }
-    .container { max-width: 1200px; margin: 0 auto; }
+    .container { max-width: 1250px; margin: 0 auto; }
     
     .header { margin-bottom: 20px; }
-    .header h1 { font-size: 24px; font-weight: 700; }
+    .header h1 { font-size: 24px; font-weight: 700; color: #0f172a; }
     .header p { color: #64748b; font-size: 14px; }
 
-    .panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-    .field { display: flex; flex-direction: column; gap: 6px; }
-    .field label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; }
-    .field input, .field textarea, .field select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; }
+    /* Search & Filter Controls */
+    .filter-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 14px; }
+    .field-group { display: flex; flex-direction: column; gap: 4px; }
+    .field-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; }
+    .field-group input, .field-group select, .field-group textarea { padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
 
-    .btn-run { background: #4f46e5; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; }
-    .btn-run:hover { background: #4338ca; }
-    .btn-run:disabled { background: #94a3b8; }
+    .upload-box { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; }
+    .upload-box:hover { border-color: #4f46e5; }
+    .upload-box input { display: none; }
+    .upload-label { font-size: 13px; font-weight: 600; color: #4f46e5; }
 
-    .layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; align-items: start; }
-    .job-list { display: flex; flex-direction: column; gap: 14px; max-height: 800px; overflow-y: auto; }
+    .btn-search { background: #4f46e5; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 12px; }
+    .btn-search:hover { background: #4338ca; }
+    .btn-search:disabled { background: #94a3b8; }
+
+    /* Main Grid Layout */
+    .main-layout { display: grid; grid-template-columns: 1fr 1.25fr; gap: 24px; align-items: start; }
+    @media (max-width: 900px) { .main-layout { grid-template-columns: 1fr; } }
+
+    .job-list { display: flex; flex-direction: column; gap: 14px; max-height: 850px; overflow-y: auto; padding-right: 4px; }
     
-    .job-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; cursor: pointer; transition: all 0.2s; }
+    .job-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; cursor: pointer; transition: all 0.2s; position: relative; }
     .job-card:hover, .job-card.active { border-color: #4f46e5; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08); }
     
-    .card-title { font-size: 16px; font-weight: 700; color: #0f172a; }
-    .card-company { font-size: 13px; color: #64748b; margin-bottom: 8px; }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+    .job-card-title { font-size: 17px; font-weight: 700; color: #0f172a; }
+    .job-card-company { font-size: 13px; font-weight: 500; color: #475569; margin-bottom: 10px; }
     
-    .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
-    .chip-match { background: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
-    .chip-none { background: #f1f5f9; color: #64748b; padding: 3px 8px; border-radius: 12px; font-size: 11px; }
-
-    .score-badge { font-size: 14px; font-weight: 800; padding: 4px 10px; border-radius: 16px; }
-    .high-score { background: #dcfce7; color: #15803d; }
-    .mid-score { background: #fef9c3; color: #854d0e; }
-    .low-score { background: #f1f5f9; color: #64748b; }
-
-    .detail-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; position: sticky; top: 24px; }
-    .desc-box { font-size: 13px; line-height: 1.6; color: #334155; max-height: 400px; overflow-y: auto; background: #f8fafc; padding: 12px; border-radius: 8px; margin-top: 12px; white-space: pre-wrap; }
+    .pills-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .pill { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 12px; background: #f1f5f9; color: #475569; }
     
+    .match-summary { background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .skill-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+    .skill-chip { font-size: 10px; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 10px; font-weight: 600; }
+    .score-badge { font-size: 15px; font-weight: 800; color: #15803d; background: #dcfce7; padding: 4px 10px; border-radius: 16px; text-align: center; }
+
+    /* Right Panel Details */
+    .detail-view { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; position: sticky; top: 24px; }
+    .desc-box { font-size: 13px; line-height: 1.6; color: #334155; max-height: 450px; overflow-y: auto; margin-top: 12px; white-space: pre-wrap; background: #f8fafc; padding: 12px; border-radius: 8px; font-family: inherit; }
+    
+    .btn-apply { display: block; width: 100%; text-align: center; background: #0f172a; color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 14px; margin-top: 16px; }
+    .btn-apply:hover { background: #1e293b; }
+
     .status-msg { text-align: center; padding: 40px; color: #64748b; font-size: 14px; }
   </style>
 </head>
@@ -53,38 +66,71 @@
 
   <div class="container">
     <div class="header">
-      <h1>🎯 Dynamic CV & Job Description Matcher</h1>
-      <p>Extracts real terms directly from your CV and compares them live against scraped job postings.</p>
+      <h1>🌐 Dynamic Live Job Aggregator</h1>
+      <p>Enter any custom job search criteria, filter by posting time, and analyze native descriptions against your uploaded CV.</p>
     </div>
 
-    <div class="panel">
-      <div class="grid-2">
-        <div class="field">
-          <label>Job Title Search Query</label>
-          <input type="text" id="roleInput" value="Operations Manager OR Project Manager">
+    <!-- Flexible Search Controls -->
+    <div class="filter-panel">
+      <div class="grid-4">
+        <!-- Open Job Titles Input (Blank by default) -->
+        <div class="field-group">
+          <label>Job Title(s)</label>
+          <input type="text" id="roleInput" value="" placeholder="e.g. Operations Manager OR Project Manager">
         </div>
-        <div class="field">
-          <label>Location</label>
-          <input type="text" id="locInput" value="Portugal">
+
+        <!-- Open Location Input -->
+        <div class="field-group">
+          <label>Location (City / Country)</label>
+          <input type="text" id="locInput" value="" placeholder="e.g. Lisbon, Portugal or Worldwide">
+        </div>
+
+        <!-- Date Posted / Time Filter -->
+        <div class="field-group">
+          <label>Date Posted</label>
+          <select id="dateFilter">
+            <option value="past24h">Past 24 Hours</option>
+            <option value="pastWeek" selected>Past 7 Days</option>
+            <option value="pastMonth">Past 30 Days</option>
+            <option value="anytime">Anytime</option>
+          </select>
+        </div>
+
+        <!-- Applicant Limit -->
+        <div class="field-group">
+          <label>Applicant Competition</label>
+          <select id="applicantFilter">
+            <option value="all">Any Applicant Count</option>
+            <option value="10">Under 10 Applicants</option>
+            <option value="25">Under 25 Applicants</option>
+            <option value="50">Under 50 Applicants</option>
+          </select>
         </div>
       </div>
 
-      <div class="field">
-        <label>📄 Upload PDF CV or Paste Resume Skills</label>
-        <input type="file" id="cvFile" accept=".pdf,.txt" onchange="readCVFile(event)" style="margin-bottom:8px;">
-        <textarea id="cvText" rows="3" placeholder="Paste or upload your CV here..."></textarea>
+      <!-- PDF / Document CV Upload -->
+      <div class="field-group">
+        <label>📄 Upload PDF / Document CV (Extracts Real Keywords)</label>
+        <div class="upload-box" onclick="document.getElementById('cvFileInput').click()">
+          <span class="upload-label" id="uploadStatus">📁 Click to Upload PDF or Paste Resume Text Below</span>
+          <input type="file" id="cvFileInput" accept=".pdf,.txt,.doc,.docx" onchange="handlePDFUpload(event)">
+        </div>
+        <textarea id="cvTextInput" rows="3" style="margin-top:8px;" placeholder="Paste CV text here if not uploading a file..."></textarea>
       </div>
 
-      <button id="searchBtn" class="btn-run" style="margin-top:12px;" onclick="searchAndMatch()">🔍 Scrape Jobs & Perform Real Match Analysis</button>
+      <button id="searchBtn" class="btn-search" onclick="runLiveSearch()">🔍 Scrape Jobs & Analyze CV Match</button>
     </div>
 
-    <div class="layout">
+    <!-- Main Results Layout -->
+    <div class="main-layout">
       <div class="job-list" id="jobList">
-        <div class="status-msg">Click <strong>Scrape Jobs & Perform Real Match Analysis</strong> to start.</div>
+        <div class="status-msg">Type your job titles and click <strong>Scrape Jobs & Analyze CV Match</strong>.</div>
       </div>
 
-      <div class="detail-panel" id="detailPanel">
-        <div class="status-msg">👈 Select a job from the list to view the full native description and exact matched skills.</div>
+      <div class="detail-view" id="detailView">
+        <div style="text-align:center; padding: 60px 0; color: #94a3b8;">
+          👈 Select a job from the left to view the complete native description in its original language.
+        </div>
       </div>
     </div>
   </div>
@@ -93,43 +139,47 @@
     const API_TOKEN = "apify_api_XZ7BbAkRfm3AulbaMb1TZw0Z8gTJgl04mQnl";
     const ACTOR_ID = "DYFzkdbYmMF6x7QMG";
 
-    let fetchedJobs = [];
+    let currentJobs = [];
 
-    // Parse PDF CV using PDF.js
-    async function readCVFile(e) {
-      const file = e.target.files[0];
+    // Parse PDF CV via PDF.js
+    async function handlePDFUpload(event) {
+      const file = event.target.files[0];
       if (!file) return;
 
+      document.getElementById('uploadStatus').innerText = `📄 Uploading: ${file.name}`;
+
       if (file.type === "application/pdf") {
-        const reader = new FileReader();
-        reader.onload = async function() {
+        const fileReader = new FileReader();
+        fileReader.onload = async function() {
           const typedarray = new Uint8Array(this.result);
           pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+          
           const pdf = await pdfjsLib.getDocument(typedarray).promise;
-          let text = "";
+          let fullText = "";
           for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
-            const content = await page.getTextContent();
-            text += content.items.map(item => item.str).join(" ") + " ";
+            const textContent = await page.getTextContent();
+            fullText += textContent.items.map(item => item.str).join(" ") + " ";
           }
-          document.getElementById('cvText').value = text;
+          document.getElementById('cvTextInput').value = fullText;
+          document.getElementById('uploadStatus').innerText = `✅ PDF Parsed Successfully: ${file.name}`;
         };
-        reader.readAsArrayBuffer(file);
+        fileReader.readAsArrayBuffer(file);
       } else {
         const reader = new FileReader();
-        reader.onload = ev => document.getElementById('cvText').value = ev.target.result;
+        reader.onload = e => document.getElementById('cvTextInput').value = e.target.result;
         reader.readAsText(file);
+        document.getElementById('uploadStatus').innerText = `✅ File Loaded: ${file.name}`;
       }
     }
 
-    // Dynamic Skill Extractor (No hardcoded skills)
-    function extractCVTerms(rawCV) {
-      if (!rawCV || rawCV.trim().length === 0) return [];
-
-      // Clean text into meaningful unique terms (words > 3 characters, removing common stop words)
+    // Dynamic Keyword Extractor
+    function extractCVWords(cvText) {
+      if (!cvText || cvText.trim().length === 0) return [];
+      
       const stopWords = new Set(["with", "from", "that", "this", "have", "been", "were", "their", "about", "which", "will", "would", "there", "their", "management", "experience"]);
       
-      const words = rawCV.toLowerCase()
+      const words = cvText.toLowerCase()
         .replace(/[^a-z0-9\s]/g, ' ')
         .split(/\s+/)
         .filter(w => w.length > 3 && !stopWords.has(w));
@@ -137,46 +187,49 @@
       return Array.from(new Set(words));
     }
 
-    function calculateRealMatch(cvTerms, jobDesc) {
-      if (!cvTerms || cvTerms.length === 0 || !jobDesc) {
+    function calculateDynamicMatch(cvWords, jobDesc) {
+      if (!cvWords || cvWords.length === 0 || !jobDesc) {
         return { score: 0, matched: [] };
       }
 
       const descLower = jobDesc.toLowerCase();
       const matched = [];
 
-      cvTerms.forEach(term => {
-        if (descLower.includes(term)) {
-          // Capitalize term for clean display
-          matched.push(term.charAt(0).toUpperCase() + term.slice(1));
+      cvWords.forEach(word => {
+        if (descLower.includes(word)) {
+          matched.push(word.charAt(0).toUpperCase() + word.slice(1));
         }
       });
 
-      // Calculate true percentage match based on overlap ratio
-      const matchRatio = matched.length / Math.min(cvTerms.length, 30);
+      const matchRatio = matched.length / Math.min(cvWords.length, 25);
       const score = Math.min(Math.round(matchRatio * 100), 98);
 
       return { score, matched };
     }
 
-    async function searchAndMatch() {
-      const role = document.getElementById('roleInput').value;
-      const location = document.getElementById('locInput').value;
-      const cvRaw = document.getElementById('cvText').value;
+    async function runLiveSearch() {
+      const role = document.getElementById('roleInput').value.trim();
+      const location = document.getElementById('locInput').value.trim();
+      const datePosted = document.getElementById('dateFilter').value;
+      const maxApps = document.getElementById('applicantFilter').value;
       const btn = document.getElementById('searchBtn');
-      const list = document.getElementById('jobList');
+      const listContainer = document.getElementById('jobList');
 
-      const userCVTerms = extractCVTerms(cvRaw);
+      if (!role) {
+        alert("Please enter a job title to search!");
+        return;
+      }
 
       btn.disabled = true;
-      list.innerHTML = `<div class="status-msg">🚀 Scraping live jobs on Apify Cloud...</div>`;
+      listContainer.innerHTML = `<div class="status-msg">🚀 Launching live cloud scrape for "${role}" in "${location || 'Worldwide'}"...</div>`;
 
       try {
         const payload = {
           searchTerm: role,
-          location: location,
+          location: location || undefined,
+          datePosted: datePosted !== 'anytime' ? datePosted : undefined,
           sites: ["linkedin", "indeed", "glassdoor"],
-          maxResults: 15
+          maxResults: 50
         };
 
         const startRes = await fetch(`https://api.apify.com/v2/acts/${ACTOR_ID}/runs?token=${API_TOKEN}`, {
@@ -188,103 +241,127 @@
         const runId = startData.data.id;
         const datasetId = startData.data.defaultDatasetId;
 
-        let finished = false;
+        let isFinished = false;
         let attempts = 0;
-        while (!finished && attempts < 35) {
+        while (!isFinished && attempts < 40) {
           attempts++;
-          list.innerHTML = `<div class="status-msg">⏳ Analyzing live job postings against your CV... (${attempts * 3}s)</div>`;
+          listContainer.innerHTML = `<div class="status-msg">⏳ Fetching live job postings from portals... (${attempts * 3}s)</div>`;
           await new Promise(r => setTimeout(r, 3000));
 
           const checkRes = await fetch(`https://api.apify.com/v2/actor-runs/${runId}?token=${API_TOKEN}`);
           const checkData = await checkRes.json();
-          if (checkData.data.status === 'SUCCEEDED') finished = true;
+          if (checkData.data.status === 'SUCCEEDED') isFinished = true;
         }
 
         const datasetRes = await fetch(`https://api.apify.com/v2/datasets/${datasetId}/items?token=${API_TOKEN}`);
-        fetchedJobs = await datasetRes.json();
+        currentJobs = await datasetRes.json();
 
-        if (!fetchedJobs || fetchedJobs.length === 0) {
-          list.innerHTML = `<div class="status-msg">No live jobs found for this query.</div>`;
+        // Apply applicant cap filter
+        if (maxApps !== 'all') {
+          const cap = parseInt(maxApps);
+          currentJobs = currentJobs.filter(j => {
+            const apps = j.applicantCount || j.applicants || 0;
+            return apps === 0 || apps <= cap;
+          });
+        }
+
+        if (!currentJobs || currentJobs.length === 0) {
+          listContainer.innerHTML = `<div class="status-msg">No live jobs matched your search query. Try expanding the location or time filter.</div>`;
           btn.disabled = false;
           return;
         }
 
-        list.innerHTML = '';
-        fetchedJobs.forEach((job, index) => {
-          const fullDesc = job.description || job.snippet || job.title;
-          const matchResult = calculateRealMatch(userCVTerms, fullDesc);
-
-          let badgeClass = "low-score";
-          if (matchResult.score >= 60) badgeClass = "high-score";
-          else if (matchResult.score >= 30) badgeClass = "mid-score";
-
-          list.innerHTML += `
-            <div class="job-card" id="card-${index}" onclick="showDetail(${index})">
-              <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                <div>
-                  <div class="card-title">${job.title || 'Job Title'}</div>
-                  <div class="card-company">${job.company || 'Company'} — 📍 ${job.location || location}</div>
-                </div>
-                <div class="score-badge ${badgeClass}">${matchResult.score}%</div>
-              </div>
-
-              <div class="chips">
-                ${matchResult.matched.length > 0 
-                  ? matchResult.matched.slice(0, 5).map(m => `<span class="chip-match">✓ ${m}</span>`).join('') 
-                  : '<span class="chip-none">No direct skill overlap detected</span>'}
-              </div>
-            </div>
-          `;
-        });
-
-        showDetail(0);
+        renderJobList();
+        renderDetailView(0);
 
       } catch (err) {
-        list.innerHTML = `<div class="status-msg" style="color:red;">❌ Error: ${err.message}</div>`;
+        listContainer.innerHTML = `<div class="status-msg" style="color:red;">❌ Error: ${err.message}</div>`;
       } finally {
         btn.disabled = false;
       }
     }
 
-    function showDetail(index) {
+    function renderJobList() {
+      const listContainer = document.getElementById('jobList');
+      const cvText = document.getElementById('cvTextInput').value.trim();
+      const cvWords = extractCVWords(cvText);
+
+      listContainer.innerHTML = `<div style="font-size:13px; font-weight:700; color:#475569;">Found ${currentJobs.length} live vacancies</div>`;
+
+      currentJobs.forEach((job, index) => {
+        const fullDesc = job.description || job.snippet || job.title;
+        const analysis = calculateDynamicMatch(cvWords, fullDesc);
+        
+        listContainer.innerHTML += `
+          <div class="job-card" id="card-${index}" onclick="renderDetailView(${index})">
+            <div class="card-top">
+              <div>
+                <div class="job-card-title">${job.title || job.jobTitle}</div>
+                <div class="job-card-company">${job.company || 'Verified Employer'} • <span style="color:#6366f1;">Sourced from ${job.site || 'LinkedIn'}</span></div>
+              </div>
+            </div>
+
+            <div class="pills-container">
+              <span class="pill">📍 ${job.location || 'Location'}</span>
+              <span class="pill">💼 ${job.employmentType || 'Full-time'}</span>
+              <span class="pill">👥 ${job.applicantCount || job.applicants || 'Active'} applicants</span>
+            </div>
+
+            <div class="match-summary">
+              <div>
+                <span style="font-size:11px; font-weight:600; color:#166534;">Matched CV Keywords</span>
+                <div class="skill-chips">
+                  ${analysis.matched.length > 0 
+                    ? analysis.matched.slice(0, 4).map(s => `<span class="skill-chip">${s}</span>`).join('')
+                    : '<span style="font-size:10px; color:#94a3b8;">Upload CV above to calculate match</span>'}
+                </div>
+              </div>
+              <div class="score-badge">${analysis.score}%</div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function renderDetailView(index) {
       document.querySelectorAll('.job-card').forEach(c => c.classList.remove('active'));
-      const card = document.getElementById(`card-${index}`);
-      if (card) card.classList.add('active');
+      const selectedCard = document.getElementById(`card-${index}`);
+      if (selectedCard) selectedCard.classList.add('active');
 
-      const job = fetchedJobs[index];
-      const cvRaw = document.getElementById('cvText').value;
-      const userCVTerms = extractCVTerms(cvRaw);
+      const job = currentJobs[index];
+      const cvText = document.getElementById('cvTextInput').value.trim();
+      const cvWords = extractCVWords(cvText);
+      const detailContainer = document.getElementById('detailView');
+
+      const fullNativeDesc = job.description || job.snippet || "Full job description text available on original portal listing.";
+      const analysis = calculateDynamicMatch(cvWords, fullNativeDesc);
       
-      const fullDesc = job.description || job.snippet || "Full description available on original portal.";
-      const matchResult = calculateRealMatch(userCVTerms, fullDesc);
+      const targetUrl = job.jobUrl || job.url || job.link || job.job_url || '#';
 
-      const panel = document.getElementById('detailPanel');
-      panel.innerHTML = `
-        <div style="font-size:12px; font-weight:600; color:#6366f1;">Sourced from ${job.site || 'Portal'}</div>
-        <div style="font-size:20px; font-weight:700; color:#0f172a;">${job.title || 'Job Title'}</div>
-        <div style="font-size:14px; font-weight:500; color:#475569; margin-bottom:12px;">${job.company || 'Company'}</div>
+      detailContainer.innerHTML = `
+        <div style="font-size:12px; font-weight:600; color:#6366f1;">Sourced from ${job.site || 'LinkedIn'}</div>
+        <div style="font-size:20px; font-weight:700; color:#0f172a; margin-top:2px;">${job.title || job.jobTitle}</div>
+        <div style="font-size:14px; font-weight:500; color:#475569; margin-bottom:12px;">${job.company || 'Employer'} — 📍 ${job.location || 'Location'}</div>
 
-        <div style="background:#f8fafc; padding:12px; border-radius:8px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:10px; border-radius:8px; margin-bottom:12px;">
           <div>
-            <div style="font-size:16px; font-weight:800;">${matchResult.score}% True Match Score</div>
-            <div style="font-size:12px; color:#166534;">${matchResult.matched.length} actual keywords overlapped with your CV</div>
+            <div style="font-size:16px; font-weight:800; color:#0f172a;">${analysis.score}% Dynamic Match Score</div>
+            <div style="font-size:11px; color:#166534; font-weight:600;">${analysis.matched.length} CV words matched in native description</div>
           </div>
-          <div class="score-badge high-score">${matchResult.score}%</div>
+          <div class="score-badge">${analysis.score}%</div>
         </div>
 
-        <div style="margin-bottom:12px;">
-          <strong style="font-size:12px;">Matched Terms:</strong>
-          <div class="chips">
-            ${matchResult.matched.length > 0 
-              ? matchResult.matched.map(m => `<span class="chip-match">✓ ${m}</span>`).join('') 
-              : '<span class="chip-none">Upload your CV above to see dynamic matches!</span>'}
-          </div>
+        <h3 style="font-size:13px; font-weight:700; color:#0f172a;">Matched CV Terms</h3>
+        <div class="skill-chips" style="margin-bottom:12px;">
+          ${analysis.matched.length > 0 
+            ? analysis.matched.map(s => `<span class="skill-chip">✓ ${s}</span>`).join('')
+            : '<span style="font-size:11px; color:#94a3b8;">Upload your CV to see skill overlaps</span>'}
         </div>
 
-        <strong style="font-size:12px;">Job Description (Native Text):</strong>
-        <div class="desc-box">${fullDesc}</div>
+        <h3 style="font-size:13px; font-weight:700; color:#0f172a;">Job Description (Original Language)</h3>
+        <div class="desc-box">${fullNativeDesc}</div>
 
-        <a href="${job.jobUrl || job.url || job.link || '#'}" target="_blank" style="display:block; text-align:center; background:#0f172a; color:white; text-decoration:none; padding:10px; border-radius:8px; font-weight:600; font-size:13px; margin-top:16px;">View Original Posting ↗</a>
+        <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="btn-apply">View Original Job on ${job.site || 'Portal'} ↗</a>
       `;
     }
   </script>
