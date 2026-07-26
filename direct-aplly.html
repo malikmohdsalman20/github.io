@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direct Portal Apply & Job Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background-color: #f8fafc; color: #0f172a; padding: 24px; }
+    .container { max-width: 1250px; margin: 0 auto; }
+
+    .header { margin-bottom: 20px; }
+    .header h1 { font-size: 24px; font-weight: 700; color: #0f172a; }
+    .header p { color: #64748b; font-size: 14px; }
+
+    /* Control Panel */
+    .filter-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .field-group { display: flex; flex-direction: column; gap: 4px; }
+    .field-group label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; }
+    .field-group input, .field-group select { padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; }
+
+    .btn-search { background: #4f46e5; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 14px; }
+    .btn-search:hover { background: #4338ca; }
+
+    /* Layout Grid */
+    .main-layout { display: grid; grid-template-columns: 1fr 1.25fr; gap: 24px; align-items: start; }
+    @media (max-width: 900px) { .main-layout { grid-template-columns: 1fr; } }
+
+    .job-list { display: flex; flex-direction: column; gap: 14px; max-height: 850px; overflow-y: auto; padding-right: 4px; }
+    
+    /* Card Design */
+    .job-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; cursor: pointer; transition: all 0.2s; }
+    .job-card:hover, .job-card.active { border-color: #4f46e5; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08); }
+    
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .job-card-title { font-size: 17px; font-weight: 700; color: #0f172a; }
+    .job-card-company { font-size: 13px; color: #475569; margin-bottom: 8px; }
+    
+    .pill { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 12px; background: #f1f5f9; color: #475569; }
+
+    /* Direct Action Buttons */
+    .btn-direct-link { display: inline-flex; align-items: center; gap: 4px; background: #0a66c2; color: white; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-top: 10px; }
+    .btn-direct-link:hover { background: #004182; }
+
+    .detail-view { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; position: sticky; top: 24px; }
+    .desc-box { font-size: 13px; line-height: 1.6; color: #334155; max-height: 450px; overflow-y: auto; margin-top: 12px; white-space: pre-wrap; background: #f8fafc; padding: 12px; border-radius: 8px; }
+    
+    .btn-apply-main { display: block; width: 100%; text-align: center; background: #0a66c2; color: white; text-decoration: none; padding: 14px; border-radius: 8px; font-weight: 700; font-size: 15px; margin-top: 16px; transition: background 0.2s; }
+    .btn-apply-main:hover { background: #004182; }
+
+    .status-msg { text-align: center; padding: 40px; color: #64748b; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>🌐 Direct Portal Job Search</h1>
+      <p>Clicking any job listing directly redirects you to the original external webpage on LinkedIn, Indeed, or Glassdoor.</p>
+    </div>
+
+    <!-- Search Panel -->
+    <div class="filter-panel">
+      <div class="grid-3">
+        <div class="field-group">
+          <label>Job Title Search</label>
+          <input type="text" id="roleInput" placeholder="e.g. Operations Manager or Project Manager">
+        </div>
+
+        <div class="field-group">
+          <label>Location</label>
+          <input type="text" id="locInput" placeholder="e.g. Portugal or London">
+        </div>
+
+        <div class="field-group">
+          <label>Date Posted</label>
+          <select id="dateFilter">
+            <option value="pastWeek" selected>Past 7 Days</option>
+            <option value="past24h">Past 24 Hours</option>
+            <option value="pastMonth">Past 30 Days</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="searchBtn" class="btn-search" onclick="runLiveSearch()">🔍 Scrape Jobs with Direct Application Links</button>
+    </div>
+
+    <!-- Main Results Area -->
+    <div class="main-layout">
+      <div class="job-list" id="jobList">
+        <div class="status-msg">Type a query above and click <strong>Scrape Jobs</strong>.</div>
+      </div>
+
+      <div class="detail-view" id="detailView">
+        <div style="text-align:center; padding: 60px 0; color: #94a3b8;">
+          👈 Select a job listing to view details or click the direct portal link.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_TOKEN = "apify_api_XZ7BbAkRfm3AulbaMb1TZw0Z8gTJgl04mQnl";
+    const ACTOR_ID = "DYFzkdbYmMF6x7QMG";
+
+    let currentJobs = [];
+
+    async function runLiveSearch() {
+      const role = document.getElementById('roleInput').value.trim();
+      const location = document.getElementById('locInput').value.trim();
+      const datePosted = document.getElementById('dateFilter').value;
+      const btn = document.getElementById('searchBtn');
+      const listContainer = document.getElementById('jobList');
+
+      if (!role) {
+        alert("Please enter a job title to search!");
+        return;
+      }
+
+      btn.disabled = true;
+      listContainer.innerHTML = `<div class="status-msg">🚀 Scraping live vacancies with direct links...</div>`;
+
+      try {
+        const payload = {
+          searchTerm: role,
+          location: location || undefined,
+          datePosted: datePosted,
+          sites: ["linkedin", "indeed", "glassdoor"],
+          maxResults: 30
+        };
+
+        const startRes = await fetch(`https://api.apify.com/v2/acts/${ACTOR_ID}/runs?token=${API_TOKEN}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const startData = await startRes.json();
+        const runId = startData.data.id;
+        const datasetId = startData.data.defaultDatasetId;
+
+        let isFinished = false;
+        let attempts = 0;
+        while (!isFinished && attempts < 40) {
+          attempts++;
+          listContainer.innerHTML = `<div class="status-msg">⏳ Fetching live application URLs... (${attempts * 3}s)</div>`;
+          await new Promise(r => setTimeout(r, 3000));
+
+          const checkRes = await fetch(`https://api.apify.com/v2/actor-runs/${runId}?token=${API_TOKEN}`);
+          const checkData = await checkRes.json();
+          if (checkData.data.status === 'SUCCEEDED') isFinished = true;
+        }
+
+        const datasetRes = await fetch(`https://api.apify.com/v2/datasets/${datasetId}/items?token=${API_TOKEN}`);
+        currentJobs = await datasetRes.json();
+
+        if (!currentJobs || currentJobs.length === 0) {
+          listContainer.innerHTML = `<div class="status-msg">No live jobs found for this query.</div>`;
+          btn.disabled = false;
+          return;
+        }
+
+        renderJobList();
+        renderDetailView(0);
+
+      } catch (err) {
+        listContainer.innerHTML = `<div class="status-msg" style="color:red;">❌ Error: ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function renderJobList() {
+      const listContainer = document.getElementById('jobList');
+      listContainer.innerHTML = `<div style="font-size:13px; font-weight:700; color:#475569;">Found ${currentJobs.length} live vacancies</div>`;
+
+      currentJobs.forEach((job, index) => {
+        // Direct link URL resolution
+        const directUrl = job.jobUrl || job.url || job.link || job.job_url || '#';
+        const portalName = job.site || job.source || 'LinkedIn';
+
+        listContainer.innerHTML += `
+          <div class="job-card" id="card-${index}" onclick="renderDetailView(${index})">
+            <div class="card-top">
+              <div>
+                <div class="job-card-title">${job.title || job.jobTitle}</div>
+                <div class="job-card-company">${job.company || 'Employer'} — 📍 ${job.location || 'Location'}</div>
+              </div>
+            </div>
+
+            <div style="margin-top:6px; display:flex; justify-content:space-between; align-items:center;">
+              <span class="pill">Sourced from ${portalName}</span>
+
+              <!-- Direct Link Button right on front card -->
+              <a href="${directUrl}" target="_blank" rel="noopener noreferrer" class="btn-direct-link" onclick="event.stopPropagation();">
+                Apply on ${portalName} ↗
+              </a>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function renderDetailView(index) {
+      document.querySelectorAll('.job-card').forEach(c => c.classList.remove('active'));
+      const selectedCard = document.getElementById(`card-${index}`);
+      if (selectedCard) selectedCard.classList.add('active');
+
+      const job = currentJobs[index];
+      const detailContainer = document.getElementById('detailView');
+
+      const directUrl = job.jobUrl || job.url || job.link || job.job_url || '#';
+      const portalName = job.site || job.source || 'LinkedIn';
+      const fullDesc = job.description || job.snippet || "Full description text available on original portal.";
+
+      detailContainer.innerHTML = `
+        <div style="font-size:12px; font-weight:600; color:#6366f1;">Sourced from ${portalName}</div>
+        <div style="font-size:22px; font-weight:700; color:#0f172a; margin-top:2px;">${job.title || job.jobTitle}</div>
+        <div style="font-size:15px; font-weight:500; color:#475569; margin-bottom:16px;">${job.company || 'Employer'} — 📍 ${job.location || 'Location'}</div>
+
+        <!-- Prominent Primary Direct Link Action Button -->
+        <a href="${directUrl}" target="_blank" rel="noopener noreferrer" class="btn-apply-main">
+          🚀 Open Original Listing on ${portalName} ↗
+        </a>
+
+        <h3 style="font-size:14px; font-weight:700; color:#0f172a; margin-top:20px;">Job Description (Original Language)</h3>
+        <div class="desc-box">${fullDesc}</div>
+      `;
+    }
+  </script>
+</body>
+</html>
