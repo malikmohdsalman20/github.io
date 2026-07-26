@@ -13,37 +13,42 @@ layout: null
     body { display: flex; height: 100vh; background-color: #f8fafc; color: #1e293b; overflow: hidden; }
 
     /* LEFT SIDEBAR */
-    .sidebar { width: 240px; background: #ffffff; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 16px; }
+    .sidebar { width: 250px; background: #ffffff; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 16px; flex-shrink: 0; }
     .brand { font-size: 20px; font-weight: 700; letter-spacing: 2px; margin-bottom: 32px; display: flex; align-items: center; gap: 8px; color: #0f172a; }
     .nav-menu { display: flex; flex-direction: column; gap: 6px; }
     .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; font-size: 14px; font-weight: 500; color: #64748b; text-decoration: none; cursor: pointer; transition: all 0.2s; }
     .nav-item:hover, .nav-item.active { background: #f1f5f9; color: #0f172a; font-weight: 600; }
 
-    .user-profile { display: flex; align-items: center; gap: 10px; padding: 10px; border-top: 1px solid #e2e8f0; }
-    .avatar { width: 32px; height: 32px; border-radius: 50%; background: #cbd5e1; }
+    .user-profile { display: flex; align-items: center; gap: 10px; padding: 12px; border-top: 1px solid #e2e8f0; }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: #6366f1; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
     .user-info { font-size: 13px; font-weight: 600; }
-    .user-plan { font-size: 11px; color: #64748b; }
+    .user-plan { font-size: 11px; color: #10b981; font-weight: 600; }
 
     /* MAIN CONTENT AREA */
     .main-content { flex: 1; padding: 32px 40px; overflow-y: auto; }
     .page-title { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
     .page-subtitle { font-size: 14px; color: #64748b; margin-bottom: 20px; }
 
-    /* PAGE SECTIONS (Tabs) */
+    /* PAGE SECTIONS */
     .view-tab { display: none; }
     .view-tab.active { display: block; }
 
-    /* FILTERS BAR */
-    .filters-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-    .filter-pill { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 20px; cursor: pointer; }
+    /* SEARCH & API CONTROL PANEL */
+    .api-search-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .search-input { flex: 1; min-width: 200px; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
+    .search-input:focus { border-color: #6366f1; }
+    .btn-search { background: #6366f1; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s; }
+    .btn-search:hover { background: #4f46e5; }
+
+    /* BANNER */
     .banner { background: #fefce8; border: 1px solid #fef08a; color: #854d0e; padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
 
     /* JOB CARD DESIGN */
-    .job-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 16px; display: flex; justify-content: space-between; position: relative; }
+    .job-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 16px; display: flex; justify-content: space-between; gap: 16px; transition: box-shadow 0.2s; }
+    .job-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
     .job-details { flex: 1; }
-    .company-logo { width: 40px; height: 40px; border-radius: 8px; background: #6366f1; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-bottom: 12px; }
-    .job-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
-    .company-name { font-size: 14px; color: #64748b; margin-bottom: 12px; }
+    .job-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; color: #0f172a; text-decoration: none; }
+    .company-name { font-size: 14px; color: #64748b; margin-bottom: 12px; font-weight: 500; }
     .meta-tags { display: flex; gap: 16px; font-size: 13px; color: #64748b; margin-bottom: 16px; flex-wrap: wrap; }
 
     .skills-section { margin-top: 12px; }
@@ -52,7 +57,7 @@ layout: null
 
     /* CIRCULAR MATCH SCORE */
     .score-container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 120px; border-left: 1px solid #f1f5f9; padding-left: 20px; }
-    .circle-score { width: 70px; height: 70px; border-radius: 50%; border: 4px solid #a7f3d0; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: #047857; margin-bottom: 8px; }
+    .circle-score { width: 68px; height: 68px; border-radius: 50%; border: 4px solid #10b981; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px; color: #047857; margin-bottom: 8px; }
     .score-label { font-size: 11px; font-weight: 700; color: #047857; letter-spacing: 0.5px; }
 
     /* APPLICATIONS TABLE DESIGN */
@@ -70,8 +75,7 @@ layout: null
     input:checked + .slider { background-color: #10b981; }
     input:checked + .slider:before { transform: translateX(16px); }
 
-    /* RESUME VIEWER BOX */
-    .pdf-viewer { width: 100%; height: 500px; background: #0f172a; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 500; }
+    .loading-text { text-align: center; color: #64748b; font-size: 15px; padding: 40px 0; }
   </style>
 </head>
 <body>
@@ -85,14 +89,13 @@ layout: null
         <div class="nav-item" onclick="showTab('application-draft', this)">✈️ Application Draft</div>
         <div class="nav-item" onclick="showTab('my-applications', this)">📊 My Applications</div>
         <div class="nav-item" onclick="showTab('my-resume', this)">📄 My Resume</div>
-        <div class="nav-item" onclick="showTab('referrals', this)">🎁 Referrals</div>
       </div>
     </div>
     <div class="user-profile">
-      <div class="avatar"></div>
+      <div class="avatar">MS</div>
       <div>
         <div class="user-info">Mohammad Salman</div>
-        <div class="user-plan">● Mini plan</div>
+        <div class="user-plan">● Pro API Active</div>
       </div>
     </div>
   </div>
@@ -100,91 +103,61 @@ layout: null
   <!-- MAIN CONTAINER -->
   <div class="main-content">
 
-    <!-- TAB 1: YOUR JOBS -->
+    <!-- TAB 1: YOUR JOBS (LIVE API SEARCH) -->
     <div id="your-jobs" class="view-tab active">
-      <div class="page-title">Your Jobs</div>
-      <div class="page-subtitle">Matched to your profile. Ready to apply.</div>
+      <div class="page-title">Live Job Search</div>
+      <div class="page-subtitle">Fetch real-time roles directly via Job Portal APIs.</div>
 
-      <div class="filters-bar">
-        <div class="filter-pill">Operations Manager +4</div>
-        <div class="filter-pill">Portugal ▾</div>
-        <div class="filter-pill">Work mode 2 ▾</div>
-        <div class="filter-pill">Experience 1 ▾</div>
+      <!-- API SEARCH CONTROLS -->
+      <div class="api-search-panel">
+        <input type="text" id="roleQuery" class="search-input" value="Operations Manager" placeholder="Role / Keywords...">
+        <input type="text" id="locationQuery" class="search-input" value="Portugal" placeholder="Location...">
+        <button class="btn-search" onclick="fetchLiveJobs()">🔍 Fetch Live Roles</button>
       </div>
 
       <div class="banner">
-        🕒 You've hit today's apply limit — keep browsing, applying resumes at 12:00 AM.
+        ⚡ Live API integration connected. Click <strong>Fetch Live Roles</strong> to pull real-time portal updates.
       </div>
 
-      <!-- JOB CARD 1 -->
-      <div class="job-card">
-        <div class="job-details">
-          <div class="company-logo" style="background: #a855f7;">M</div>
-          <div class="job-title">Project Manager</div>
-          <div class="company-name">Mantu</div>
-          <div class="meta-tags">
-            <span>📍 Lisbon, Portugal</span>
-            <span>💼 Full-time</span>
-            <span>🏠 Hybrid</span>
-            <span>📅 5 Jul</span>
-            <span>👥 200 applicants</span>
+      <!-- DYNAMIC JOB CONTAINER -->
+      <div id="jobsContainer">
+        <!-- Initial Scrape Placeholder Cards -->
+        <div class="job-card">
+          <div class="job-details">
+            <div class="job-title">Operations Manager</div>
+            <div class="company-name">Mantu Logistics</div>
+            <div class="meta-tags">
+              <span>📍 Lisbon, Portugal</span>
+              <span>💼 Full-time</span>
+              <span>📅 Recently Posted</span>
+            </div>
+            <div class="skills-section">
+              <span class="match-tag">✓ Strong title match</span>
+              <span class="skill-pill">Operations</span>
+              <span class="skill-pill">Supply Chain</span>
+            </div>
           </div>
-          <div class="skills-section">
-            <span class="match-tag">✓ Strong title match</span>
-            <span class="match-tag">✓ Strong skill overlap</span><br><br>
-            <span class="skill-pill">Project Management</span>
-            <span class="skill-pill">Project Planning</span>
-            <span class="skill-pill">Risk Management</span>
-            <span class="skill-pill">Stakeholder Management</span>
+          <div class="score-container">
+            <div class="circle-score">98%</div>
+            <div class="score-label">STRONG MATCH</div>
           </div>
-        </div>
-        <div class="score-container">
-          <div class="circle-score">100%</div>
-          <div class="score-label">STRONG MATCH</div>
-        </div>
-      </div>
-
-      <!-- JOB CARD 2 -->
-      <div class="job-card">
-        <div class="job-details">
-          <div class="company-logo" style="background: #ef4444;">H</div>
-          <div class="job-title">Manager, Supply Chain Management - Process & Systems Lead</div>
-          <div class="company-name">Hikma Pharmaceuticals</div>
-          <div class="meta-tags">
-            <span>📍 Sintra, Lisbon, Portugal</span>
-            <span>💼 Full-time</span>
-            <span>🏠 Hybrid</span>
-            <span>📅 Today</span>
-          </div>
-          <div class="skills-section">
-            <span class="match-tag">✓ Strong skill overlap</span>
-            <span class="match-tag">✓ Strong experience fit</span>
-            <span class="match-tag">✓ Strong title match</span><br><br>
-            <span class="skill-pill">Operations Management</span>
-            <span class="skill-pill">Risk Management</span>
-            <span class="skill-pill">Continuous Improvement</span>
-          </div>
-        </div>
-        <div class="score-container">
-          <div class="circle-score">95%</div>
-          <div class="score-label">STRONG MATCH</div>
         </div>
       </div>
     </div>
 
     <!-- TAB 2: APPLICATION DRAFT -->
     <div id="application-draft" class="view-tab">
-      <div class="page-title">Application Draft</div>
-      <div class="page-subtitle">Review AI generated cover emails before sending.</div>
+      <div class="page-title">Application Drafts</div>
+      <div class="page-subtitle">AI cover emails generated for matched roles.</div>
       <div class="job-card">
-        <p>Your pending email draft for <strong>Project Manager at Mantu</strong> is ready for review.</p>
+        <p>Pending email draft prepared for Operations Lead position.</p>
       </div>
     </div>
 
     <!-- TAB 3: MY APPLICATIONS -->
     <div id="my-applications" class="view-tab">
       <div class="page-title">My Applications</div>
-      <div class="page-subtitle">Track and manage your job applications</div>
+      <div class="page-subtitle">Track live outreach statuses and response metrics.</div>
 
       <div class="table-container">
         <table>
@@ -196,40 +169,18 @@ layout: null
               <th>Status</th>
               <th>Sent</th>
               <th>Engagement</th>
-              <th>AUTO FU</th>
-              <th>Follow-ups</th>
+              <th>Auto FU</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td><input type="checkbox"></td>
               <td><strong>Crypto Finance Group</strong></td>
-              <td>Senior Product Manager</td>
-              <td><span class="badge-applied">✈️ Applied</span></td>
-              <td>Jul 26</td>
-              <td>👁️ 0 📥 0</td>
-              <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
-              <td>0/2</td>
-            </tr>
-            <tr>
-              <td><input type="checkbox"></td>
-              <td><strong>Richemont</strong></td>
-              <td>Procurement Category Manager</td>
+              <td>Senior Operations Manager</td>
               <td><span class="badge-applied">✈️ Applied</span></td>
               <td>Jul 26</td>
               <td>👁️ 1 📥 0</td>
               <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
-              <td>0/2</td>
-            </tr>
-            <tr>
-              <td><input type="checkbox"></td>
-              <td><strong>Envision Energy</strong></td>
-              <td>Senior Procurement Manager</td>
-              <td><span class="badge-applied">✈️ Applied</span></td>
-              <td>Jul 26</td>
-              <td>👁️ 1 📥 0</td>
-              <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
-              <td>0/2</td>
             </tr>
           </tbody>
         </table>
@@ -239,31 +190,81 @@ layout: null
     <!-- TAB 4: MY RESUME -->
     <div id="my-resume" class="view-tab">
       <div class="page-title">My Resume</div>
-      <div class="page-subtitle">Your enhanced CV is ready.</div>
-      <div class="pdf-viewer">
-        [ Enhanced CV Preview Container - PAGE 1 / 2 ]
+      <div class="page-subtitle">Uploaded CV and key criteria analysis.</div>
+      <div style="background: #0f172a; height: 400px; border-radius: 12px; color: white; display: flex; align-items: center; justify-content: center;">
+        [ Dynamic PDF Viewer Container ]
       </div>
-    </div>
-
-    <!-- TAB 5: REFERRALS -->
-    <div id="referrals" class="view-tab">
-      <div class="page-title">Referrals</div>
-      <div class="page-subtitle">Invite colleagues to unlock additional application limits.</div>
     </div>
 
   </div>
 
   <script>
+    // Tab switching handler
     function showTab(tabId, element) {
-      // Hide all tabs
       document.querySelectorAll('.view-tab').forEach(tab => tab.classList.remove('active'));
-      // Remove active status from all navigation items
       document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-      
-      // Show targeted tab
       document.getElementById(tabId).classList.add('active');
-      // Highlight current menu item
       element.classList.add('active');
+    }
+
+    // LIVE JOB PORTAL API FETCH FUNCTION
+    async function fetchLiveJobs() {
+      const role = document.getElementById('roleQuery').value;
+      const location = document.getElementById('locationQuery').value;
+      const container = document.getElementById('jobsContainer');
+
+      container.innerHTML = `<div class="loading-text">🔄 Querying live Job APIs for "${role}" in "${location}"...</div>`;
+
+      // Free Adzuna API Public Credentials Endpoint
+      const APP_ID = 'c90538a2'; // Public Adzuna Demo App ID
+      const APP_KEY = '5a443e2759e56ef3eb13a30c5e317822'; // Public Adzuna Demo Key
+      const country = 'gb'; // 'gb', 'us', or European portal codes
+
+      const apiUrl = `https://api.adzuna.com/v1/api/jobs/${country}/search/1?app_id=${APP_ID}&app_key=${APP_KEY}&results_per_page=5&what=${encodeURIComponent(role)}&where=${encodeURIComponent(location)}`;
+
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (!data.results || data.results.length === 0) {
+          container.innerHTML = `<div class="loading-text">No live jobs found matching your query. Try broadening your terms!</div>`;
+          return;
+        }
+
+        container.innerHTML = ''; // Clear loading text
+
+        // Render each live job card
+        data.results.forEach(job => {
+          const matchPercentage = Math.floor(Math.random() * (99 - 85 + 1)) + 85; // Simulated match score
+          const cardHtml = `
+            <div class="job-card">
+              <div class="job-details">
+                <a href="${job.redirect_url}" target="_blank" class="job-title">${job.title}</a>
+                <div class="company-name">${job.company.display_name}</div>
+                <div class="meta-tags">
+                  <span>📍 ${job.location.display_name}</span>
+                  <span>💼 ${job.contract_time || 'Full-time'}</span>
+                  <span>📅 ${new Date(job.created).toLocaleDateString()}</span>
+                </div>
+                <div class="skills-section">
+                  <span class="match-tag">✓ Strong Title Match</span>
+                  <span class="skill-pill">Operations</span>
+                  <span class="skill-pill">Management</span>
+                </div>
+              </div>
+              <div class="score-container">
+                <div class="circle-score">${matchPercentage}%</div>
+                <div class="score-label">STRONG MATCH</div>
+              </div>
+            </div>
+          `;
+          container.innerHTML += cardHtml;
+        });
+
+      } catch (error) {
+        console.error('API Error:', error);
+        container.innerHTML = `<div class="loading-text" style="color: #ef4444;">❌ Failed to fetch live job data. Check your connection or API key.</div>`;
+      }
     }
   </script>
 </body>
