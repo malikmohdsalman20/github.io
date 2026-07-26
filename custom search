@@ -1,0 +1,7 @@
+<!-- Front Card Direct LinkedIn Apply Button -->
+<div style="margin-top: 10px; text-align: right;">
+  <a href="${job.jobUrl || job.url || job.link || '#'}" target="_blank" rel="noopener noreferrer" 
+     style="font-size:12px; font-weight:700; color:#4f46e5; text-decoration:none;">
+    Apply on ${job.site || 'LinkedIn'} ↗
+  </a>
+</div>
